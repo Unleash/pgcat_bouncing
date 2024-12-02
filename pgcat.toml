@@ -1,0 +1,32 @@
+[general]
+port = 6432
+admin_username = "pgcat"
+admin_password = "my-pony-likes-to-dance-tango"
+
+[pools.unleash]
+
+[pools.unleash.users.0]
+pool_size = 5
+pool_mode = "transaction"
+username = "unleash_user"
+password = "password"
+
+[pools.unleash.shards.0]
+database = "unleash"
+servers = [
+    ["db", 5432, "primary"],
+]
+
+[pools.releash]
+
+[pools.releash.users.0]
+pool_size = 5
+pool_mode = "transaction"
+username = "releash_user"
+password = "repassword"
+
+[pools.releash.shards.0]
+database = "releash"
+servers = [
+    ["db", 5432, "primary"],
+]

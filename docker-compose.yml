@@ -1,0 +1,60 @@
+
+version: "3.9"
+services:
+  unleash:
+    image: unleashorg/unleash-server
+    ports:
+      - "4242"
+    environment:
+      - "UNLEASH_URL=http://localhost:4242"
+      - "DATABASE_URL=postgres://unleash_user:password@pgcat:6432/unleash"
+      - "DATABASE_SSL=false"
+    depends_on:
+      - pgcat
+    deploy:
+      mode: replicated
+      replicas: 10
+
+  releash:
+    image: unleashorg/unleash-server
+    ports:
+      - "4243:4242"
+    environment:
+      - "UNLEASH_URL=http://localhost:4243"
+      - "DATABASE_URL=postgres://releash_user:repassword@pgcat:6432/releash"
+      - "DATABASE_SSL=false"
+    depends_on:
+      - pgcat
+
+
+  pgcat:
+    ports:
+      - "6432:6432"
+    image: ghcr.io/postgresml/pgcat:latest
+    volumes:
+      - ./pgcat.toml:/etc/pgcat/pgcat.toml
+    depends_on:
+      - db
+
+  db:
+    ports:
+      - "15432:5432"
+    image: postgres:15
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+    environment:
+      - POSTGRES_PASSWORD=somuchfun
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "--username=unleash_user",
+          "--host=127.0.0.1",
+          "--port=5432",
+          "--password=password",
+        ]
+      interval: 2s
+      timeout: 1m
+      retries: 5
+      start_period: 10s
